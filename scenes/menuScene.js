@@ -13,6 +13,15 @@ var menu = function(game){
 	var badgesPanel;
 	var leaderBoardPanel;
 
+	var gold_medal;
+	var silver_medal;
+	var bronze_medal;
+	var expert_time;
+	var master_time;
+	var novice_time;
+	var effort; 
+	var performance;
+
 	txt_about = "This game was created for X and Y by Z. It was blah blah blah...";
 
 	data_leaderboard = [
@@ -20,6 +29,17 @@ var menu = function(game){
 		{"name": "yaelle", "score": "10"},
 		{"name": "yaelle", "score": "8"},
 		{"name": "yaelle", "score": "4"},
+	]
+
+	data_badges = [
+		{"name": "gold_medal", "earned": false},
+		{"name": "silver_medal", "earned": false},
+		{"name": "bronze_medal", "earned": true},
+		{"name": "expert_time", "earned": false},
+		{"name": "master_time", "earned": true},
+		{"name": "novice_time", "earned": true},
+		{"name": "effort", "earned": true},
+		{"name": "performance", "earned": false},
 	]
 };
   
@@ -39,6 +59,169 @@ menu.prototype = {
 		infoPanel= this.game.add.group();
 		badgesPanel= this.game.add.group();
 		leaderBoardPanel= this.game.add.group();
+
+		this.createPanels();
+
+		// fake badges recieved
+		this.updateBadges(data_badges);
+	},
+	updateBadges: function(badges) {
+		for (var i = 0 ; i < badges.length ; i++)
+		{
+			if (badges[i]["earned"])
+			{
+				switch(badges[i]["name"]) {
+					case "gold_medal":
+						gold_medal.loadTexture(badges[i]["name"], 0);
+						break;
+					case "silver_medal":
+						silver_medal.loadTexture(badges[i]["name"], 0);
+						break;
+					case "bronze_medal":
+						bronze_medal.loadTexture(badges[i]["name"], 0);
+						break;
+					case "expert_time":
+						expert_time.loadTexture(badges[i]["name"], 0);
+						break;
+					case "master_time":
+						master_time.loadTexture(badges[i]["name"], 0);
+						break;
+					case "novice_time":
+						novice_time.loadTexture(badges[i]["name"], 0);
+						break;
+					case "effort":
+						effort.loadTexture(badges[i]["name"], 0);
+						break;
+					case "performance":
+						performance.loadTexture(badges[i]["name"], 0);
+						break;						
+				}
+			}
+			else
+			{
+				switch(badges[i]["name"]) {
+					case "gold_medal":
+						gold_medal.loadTexture("badgeLocked", 0);
+						break;
+					case "silver_medal":
+						silver_medal.loadTexture("badgeLocked", 0);
+						break;
+					case "bronze_medal":
+						bronze_medal.loadTexture("badgeLocked", 0);
+						break;
+					case "expert_time":
+						expert_time.loadTexture("badgeLocked", 0);
+						break;
+					case "master_time":
+						master_time.loadTexture("badgeLocked", 0);
+						break;
+					case "novice_time":
+						novice_time.loadTexture("badgeLocked", 0);
+						break;
+					case "effort":
+						effort.loadTexture("badgeLocked", 0);
+						break;
+					case "performance":
+						performance.loadTexture("badgeLocked", 0);
+						break;						
+				}
+			}
+		}
+	},
+	createPanels: function() {
+		// *** create About panel *** 
+		panel = infoPanel.create(400,225,"panel");
+		panel.anchor.setTo(0.5,0.5);
+
+		title_info = new Phaser.Text(this.game, 400, 90, "About", {fill: '#FFFFFF'});
+		title_info.anchor.setTo(0.5,0.5);
+		infoPanel.add(title_info);
+
+		txt_info = new Phaser.Text(this.game, 400, 120, txt_about, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
+		txt_info.anchor.setTo(0.5,0);
+		infoPanel.add(txt_info);
+
+		infoPanel.visible = false;
+
+
+		// *** create Badges panel *** 
+		panel = badgesPanel.create(400,240,"panel");
+		panel.anchor.setTo(0.5,0.5);
+		panel.scale.setTo(1, 1.1);
+
+		title_badges = new Phaser.Text(this.game, 400, 90, "Badges", {fill: '#FFFFFF'});
+		title_badges.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badges);
+
+		// set all badges locked
+		gold_medal = badgesPanel.create(230,170,"badgeLocked");
+		gold_medal.anchor.setTo(0.5,0.5);
+		silver_medal = badgesPanel.create(400,170,"badgeLocked");
+		silver_medal.anchor.setTo(0.5,0.5);
+		bronze_medal = badgesPanel.create(570,170,"badgeLocked");
+		bronze_medal.anchor.setTo(0.5,0.5);
+
+		var title_badge = new Phaser.Text(this.game, 230, 220, "Gold medal", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		title_badge = new Phaser.Text(this.game, 400, 220, "Silver medal", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		title_badge = new Phaser.Text(this.game, 570, 220, "Bronze medal", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		
+		effort = badgesPanel.create(315,260,"badgeLocked");
+		effort.anchor.setTo(0.5,0.5);
+		performance = badgesPanel.create(495,260,"badgeLocked");
+		performance.anchor.setTo(0.5,0.5);
+		
+		title_badge = new Phaser.Text(this.game, 315, 310, "Effort", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		title_badge = new Phaser.Text(this.game, 495, 310, "Performance", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+
+		expert_time = badgesPanel.create(230,350,"badgeLocked");
+		expert_time.anchor.setTo(0.5,0.5);
+		master_time = badgesPanel.create(400,350,"badgeLocked");
+		master_time.anchor.setTo(0.5,0.5);
+		novice_time = badgesPanel.create(570,350,"badgeLocked");
+		novice_time.anchor.setTo(0.5,0.5);
+		
+		title_badge = new Phaser.Text(this.game, 230, 400, "Expert", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		title_badge = new Phaser.Text(this.game, 400, 400, "Master", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+		title_badge = new Phaser.Text(this.game, 570, 400, "Novice", {font: '13pt Arial', fill: '#FFFFFF'});
+		title_badge.anchor.setTo(0.5,0.5);
+		badgesPanel.add(title_badge);
+
+		badgesPanel.visible = false;
+
+
+		// *** create Leaderboard panel *** 
+		panel = leaderBoardPanel.create(400,225,"panel");
+		panel.anchor.setTo(0.5,0.5);
+
+		title = new Phaser.Text(this.game, 400, 90, "Leaderboard", {fill: '#FFFFFF'});
+		title.anchor.setTo(0.5,0.5);
+		leaderBoardPanel.add(title);
+
+		var txt_leaderboard = "";
+		for (var i=0 ; i < data_leaderboard.length ; i++)
+		{
+			txt_leaderboard += data_leaderboard[i]["name"] + " - " + data_leaderboard[i]["score"] + "\n";
+		}
+
+		txt_info = new Phaser.Text(this.game, 400, 120, txt_leaderboard, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
+		txt_info.anchor.setTo(0.5,0);
+		leaderBoardPanel.add(txt_info);
+
+		leaderBoardPanel.visible = false;
 	},
 	toggleSettings: function(){
 		if (!settingsOpened)
@@ -63,92 +246,57 @@ menu.prototype = {
 		if (!infoOpened)
 		{
 			// close other panels
-			this.destroyGroup(badgesPanel);
-			this.destroyGroup(leaderBoardPanel);
-
-			panel = infoPanel.create(400,225,"panel");
-			panel.anchor.setTo(0.5,0.5);
-
-			title_info = new Phaser.Text(this.game, 400, 90, "About", {fill: '#FFFFFF'});
-			title_info.anchor.setTo(0.5,0.5);
-			infoPanel.add(title_info);
-
-			txt_info = new Phaser.Text(this.game, 400, 120, txt_about, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
-			txt_info.anchor.setTo(0.5,0);
-			infoPanel.add(txt_info);
+			badgesPanel.visible = false;
+			badgesOpened = false;
+			leaderBoardPanel.visible = false;
+			leaderBoardOpen = false
+			infoPanel.visible = true;
 
 			infoOpened = true;
 		}
 		else
 		{
 			infoOpened = false;
-			this.destroyGroup(infoPanel);
+			infoPanel.visible = false;
 		}
 	},
 	toggleBadges: function(){
 		if (!badgesOpened)
 		{
 			// close other panels
-			this.destroyGroup(infoPanel);
-			this.destroyGroup(leaderBoardPanel);
-
-			panel = badgesPanel.create(400,225,"panel");
-			panel.anchor.setTo(0.5,0.5);
-
-			title_badges = new Phaser.Text(this.game, 400, 90, "Badges", {fill: '#FFFFFF'});
-			title_badges.anchor.setTo(0.5,0.5);
-			badgesPanel.add(title_badges);
-
-			// TODO: add all badges locked (unless won)
+			infoPanel.visible = false;
+			infoOpened = false;
+			leaderBoardPanel.visible = false;
+			leaderBoardOpen = false
+			badgesPanel.visible = true;			
 
 			badgesOpened = true;
 		}
 		else
 		{
 			badgesOpened = false;
-			this.destroyGroup(badgesPanel);
+			badgesPanel.visible = false;
 		}
 	},
 	toggleLeaderBoard: function(){
 		if (!leaderBoardOpen)
 		{
 			// close other panels
-			this.destroyGroup(infoPanel);
-			this.destroyGroup(badgesPanel);
-
-			panel = leaderBoardPanel.create(400,225,"panel");
-			panel.anchor.setTo(0.5,0.5);
-
-			title = new Phaser.Text(this.game, 400, 90, "Leaderboard", {fill: '#FFFFFF'});
-			title.anchor.setTo(0.5,0.5);
-			leaderBoardPanel.add(title);
-
-			var txt_leaderboard = "";
-			for (var i=0 ; i < data_leaderboard.length ; i++)
-			{
-				txt_leaderboard += data_leaderboard[i]["name"] + " - " + data_leaderboard[i]["score"] + "\n";
-			}
-
-			txt_info = new Phaser.Text(this.game, 400, 120, txt_leaderboard, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
-			txt_info.anchor.setTo(0.5,0);
-			leaderBoardPanel.add(txt_info);
-
+			infoPanel.visible = false;
+			infoOpened = false;
+			badgesPanel.visible = false;
+			badgesOpened = false;
+			leaderBoardPanel.visible = true;
+			
 			leaderBoardOpen = true;
 		}
 		else
 		{
 			leaderBoardOpen = false;
-			this.destroyGroup(leaderBoardPanel);
-		}
-	},
-	destroyGroup: function(group){
-		var len = group.children.length;
-		for (var i = group.children.length-1; i >= 0; i--) {
-		  	console.log(group.children[i]);
-		 	group.children[i].destroy();
+			leaderBoardPanel.visible = false;
 		}
 	},
 	startGame: function(){
-		this.game.state.start("Game");
+		this.game.state.start("Game", true, false);
 	}
 }

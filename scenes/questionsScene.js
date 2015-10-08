@@ -2,22 +2,30 @@ var questions = function(game){
 	console.log("%cStarting question scene", "color:black; background:green");
 
 	questions = [
-		{"question": "oui?", "name": "oui"}, 
-		{"question": "how old are you?", "name": "age"}
+		{"question": "oui?", "name": "oui", "type": "String"}, 
+		{"question": "how old are you?", "name": "age", "type": "Int"}, 
 	];
+
+	username = "you";
 
 	answers = [];
 };
   
 questions.prototype = {
+	init: function(paramsReceived, usernameReceived){
+
+		questions = paramsReceived;
+		username = usernameReceived;
+	},
   	create: function(){
 		$("#form_inputs").empty();
+
 
     	this.game.add.sprite(0, 0, 'menu_bg');
     	var gameTitle = this.game.add.sprite(400,65,"gametitle");
 		gameTitle.anchor.setTo(0.5,0.5);
 
-		username_tag = this.game.add.text(100, 130, 'Before you start, please answer a few questions:', { fontSize: '8px', fill: '#000' });
+		username_tag = this.game.add.text(100, 130, 'Hello '+username+'! Before you start, please answer a few questions:', { fontSize: '20px', fill: '#000' });
 
 		// questions
 		for (var i=0; i<questions.length; i++)

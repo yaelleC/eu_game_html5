@@ -4,8 +4,12 @@ var login = function(game){
 
     username_tag = "Username"; 
     password_tag = "Password"; 
-    var username_inputText = "";
-    var password_inputText = "";
+    username_inputText = "";
+    password_inputText = "";
+
+    // Set the unique ID for your serious game  
+	idSG = 160;
+	var session;
 };
   
 login.prototype = {
@@ -16,18 +20,18 @@ login.prototype = {
     	var gameTitle = this.game.add.sprite(400,70,"gametitle");
 		gameTitle.anchor.setTo(0.5,0.5);
 
-		username_tag = this.game.add.text(200, 150, 'Username', { fontSize: '12px', fill: '#000' });
-		password_tag = this.game.add.text(200, 200, 'Password', { fontSize: '12px', fill: '#000' });
+		username_tag = this.game.add.text(200, 180, 'Username', { fontSize: '20px', fill: '#000' });
+		password_tag = this.game.add.text(200, 230, 'Password', { fontSize: '20px', fill: '#000' });
 
 		$("#form_inputs").append('<input type="text" class="form-control" id="username">');
-		$("#username").css({"position": "absolute", "top": "175px", "left": "375px", "width": "300px"});
+		$("#username").css({"position": "absolute", "top": "200px", "left": "375px", "width": "300px"});
 
 		$("#form_inputs").append('<input type="password" class="form-control" id="password">');
-		$("#password").css({"position": "absolute", "top": "225px", "left": "375px", "width": "300px"});
+		$("#password").css({"position": "absolute", "top": "250px", "left": "375px", "width": "300px"});
 
-    	var loginButton = this.game.add.button(400,300,"btn_login",this.loginToGame,this);
+    	var loginButton = this.game.add.button(400,330,"btn_login",this.loginToGame,this);
 		loginButton.anchor.setTo(0.5,0.5);
-    	var loginGuestButton = this.game.add.button(400,370,"btn_guest",this.loginGuestToGame,this);
+    	var loginGuestButton = this.game.add.button(400,400,"btn_guest",this.loginGuestToGame,this);
 		loginGuestButton.anchor.setTo(0.5,0.5);
 	},
 	loginToGame: function(){
@@ -35,11 +39,38 @@ login.prototype = {
 		password_inputText = $("#password").val();
 		 	console.log("u: " + username_inputText);
 		 	console.log("p: " + password_inputText);
-		this.game.state.start("Questions");
+		
+		var login = this;
+
+		engage.loginStudent(idSG, username_inputText, password_inputText)
+	    .done(function(s){ 
+	    	session=s;
+	    	var params = session["params"];
+
+			if (params.length == 0) {
+				login.goToMenuScene();
+			}
+			else {
+				login.goToQuestionsScene(params);	
+			}
+	    })
+	    .fail(function(msg){
+	    	login.errorMessage(msg);
+	    });
 	},
 	loginGuestToGame: function(){
 		username_inputText = "";
 		password_inputText = "";
 		this.game.state.start("Questions");
+	},
+	errorMessage: function(msg){
+		var error_msg = this.game.add.text(400, 150, msg, { fontSize: '20px', fill: 'DarkRed' });
+		error_msg.anchor.setTo(0.5,0.5);
+	},
+	goToQuestionsScene: function(paramsReceived){
+		this.game.state.start("Questions", true, false, paramsReceived, username_inputText );
+	},
+	goToMenuScene: function(){
+		this.game.state.start("Menu");
 	}
 }
