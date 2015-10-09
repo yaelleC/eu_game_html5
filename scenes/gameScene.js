@@ -340,9 +340,12 @@ eumouse.prototype = {
 
         var values = {"country": flag.key};
 
+        var action = ($.inArray(flag.key, countriesFound))? "countryReSelected" : "newCountrySelected";
+        countriesFound.add(flag.key);
+
         var eugame = this;
 
-        gameplay.assess("newCountrySelected", values)
+        gameplay.assess(action, values)
         .done(function(response){
             console.log(response);
             eugame.updateFeedback(response["feedback"]);
