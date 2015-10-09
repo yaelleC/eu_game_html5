@@ -23,10 +23,10 @@ login.prototype = {
 		username_tag = this.game.add.text(200, 180, 'Username', { fontSize: '20px', fill: '#000' });
 		password_tag = this.game.add.text(200, 230, 'Password', { fontSize: '20px', fill: '#000' });
 
-		$("#form_inputs").append('<input type="text" class="form-control" id="username">');
+		$("#form_inputs").append('<input type="text" class="form-control" id="username" value="test">');
 		$("#username").css({"position": "absolute", "top": "200px", "left": "375px", "width": "300px"});
 
-		$("#form_inputs").append('<input type="password" class="form-control" id="password">');
+		$("#form_inputs").append('<input type="password" class="form-control" id="password" value="test1234">');
 		$("#password").css({"position": "absolute", "top": "250px", "left": "375px", "width": "300px"});
 
     	var loginButton = this.game.add.button(400,330,"btn_login",this.loginToGame,this);
@@ -45,13 +45,11 @@ login.prototype = {
 		engage.loginStudent(idSG, username_inputText, password_inputText)
 	    .done(function(s){ 
 	    	session=s;
-	    	var params = session["params"];
-
-			if (params.length == 0) {
+			if (session["params"].length == 0) {
 				login.goToMenuScene();
 			}
 			else {
-				login.goToQuestionsScene(params);	
+				login.goToQuestionsScene(session["params"], username_inputText);	
 			}
 	    })
 	    .fail(function(msg){
@@ -59,18 +57,27 @@ login.prototype = {
 	    });
 	},
 	loginGuestToGame: function(){
-		username_inputText = "";
-		password_inputText = "";
-		this.game.state.start("Questions");
+
+		var login = this;
+		engage.guestLogin(idSG)
+	    .done(function(s){ 
+	    	session=s;
+	    	login.goToQuestionsScene(session["params"], "Guest");				
+	    })
+	    .fail(function(msg){
+	    	login.errorMessage(msg);
+	    });
 	},
 	errorMessage: function(msg){
 		var error_msg = this.game.add.text(400, 150, msg, { fontSize: '20px', fill: 'DarkRed' });
 		error_msg.anchor.setTo(0.5,0.5);
 	},
-	goToQuestionsScene: function(paramsReceived){
-		this.game.state.start("Questions", true, false, paramsReceived, username_inputText );
+	goToQuestionsScene: function(paramsReceived, username){
+		$("#form_inputs").empty();
+		this.game.state.start("Questions", true, false, paramsReceived, username, session );
 	},
 	goToMenuScene: function(){
-		this.game.state.start("Menu");
+		$("#form_inputs").empty();
+		this.game.state.start("Menu", true, false, session);
 	}
 }

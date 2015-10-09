@@ -29,10 +29,17 @@ var menu = function(game){
 		{"name": "yaelle", "score": "10"},
 		{"name": "yaelle", "score": "8"},
 		{"name": "yaelle", "score": "4"},
-	]
+	];
 
 	data_badges = [
-		{"name": "gold_medal", "earned": false},
+		{
+	        "message": "You played 10+ times",
+	        "id": 466,
+	        "name": "effort",
+	        "earned": false,
+	        "goalNum": 10,
+	        "playerNum": 8
+	    },
 		{"name": "silver_medal", "earned": false},
 		{"name": "bronze_medal", "earned": true},
 		{"name": "expert_time", "earned": false},
@@ -40,10 +47,18 @@ var menu = function(game){
 		{"name": "novice_time", "earned": true},
 		{"name": "effort", "earned": true},
 		{"name": "performance", "earned": false},
-	]
+	];
+
+	player_params = [];
+	var session;
+	var gameplay;
 };
   
 menu.prototype = {
+	init: function(sessionReceived) {
+		session = sessionReceived;
+		player_params = sessionReceived.params;
+	},
 	create: function(){
   		this.game.add.sprite(0, 0, 'menu_bg');
     	var gameTitle = this.game.add.sprite(400,70,"gametitle");
@@ -60,10 +75,31 @@ menu.prototype = {
 		badgesPanel= this.game.add.group();
 		leaderBoardPanel= this.game.add.group();
 
-		this.createPanels();
+		// this.createPanelAbout(txt_about);
+		// this.createPanelBadges(data_badges);
+		// this.createPanelLeaderboard(data_leaderboard);
 
-		// fake badges recieved
-		this.updateBadges(data_badges);
+		var menu = this;
+		session.getGameDesc()
+		.done(
+		    function(gameDesc){
+		        menu.createPanelAbout(gameDesc["name"], gameDesc["description"]);
+		    }
+		);
+
+		session.getBadges()
+		.done(
+		    function(badges){
+		        menu.createPanelBadges(badges);
+		    }
+		);
+
+		session.getLeaderboard(10)
+		.done(
+			function(leaderboard){
+		        menu.createPanelLeaderboard(leaderboard["eu_score"]);
+		    }
+	    );
 	},
 	updateBadges: function(badges) {
 		for (var i = 0 ; i < badges.length ; i++)
@@ -97,54 +133,23 @@ menu.prototype = {
 						break;						
 				}
 			}
-			else
-			{
-				switch(badges[i]["name"]) {
-					case "gold_medal":
-						gold_medal.loadTexture("badgeLocked", 0);
-						break;
-					case "silver_medal":
-						silver_medal.loadTexture("badgeLocked", 0);
-						break;
-					case "bronze_medal":
-						bronze_medal.loadTexture("badgeLocked", 0);
-						break;
-					case "expert_time":
-						expert_time.loadTexture("badgeLocked", 0);
-						break;
-					case "master_time":
-						master_time.loadTexture("badgeLocked", 0);
-						break;
-					case "novice_time":
-						novice_time.loadTexture("badgeLocked", 0);
-						break;
-					case "effort":
-						effort.loadTexture("badgeLocked", 0);
-						break;
-					case "performance":
-						performance.loadTexture("badgeLocked", 0);
-						break;						
-				}
-			}
 		}
 	},
-	createPanels: function() {
-		// *** create About panel *** 
+	createPanelAbout: function(name, gameDesc) {
 		panel = infoPanel.create(400,225,"panel");
 		panel.anchor.setTo(0.5,0.5);
 
-		title_info = new Phaser.Text(this.game, 400, 90, "About", {fill: '#FFFFFF'});
+		title_info = new Phaser.Text(this.game, 400, 90, "About - " + name, {fill: '#FFFFFF'});
 		title_info.anchor.setTo(0.5,0.5);
 		infoPanel.add(title_info);
 
-		txt_info = new Phaser.Text(this.game, 400, 120, txt_about, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
+		txt_info = new Phaser.Text(this.game, 400, 120, gameDesc, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
 		txt_info.anchor.setTo(0.5,0);
 		infoPanel.add(txt_info);
 
 		infoPanel.visible = false;
-
-
-		// *** create Badges panel *** 
+	},
+	createPanelBadges: function(badges) {
 		panel = badgesPanel.create(400,240,"panel");
 		panel.anchor.setTo(0.5,0.5);
 		panel.scale.setTo(1, 1.1);
@@ -200,10 +205,10 @@ menu.prototype = {
 		title_badge.anchor.setTo(0.5,0.5);
 		badgesPanel.add(title_badge);
 
+		this.updateBadges(badges);
 		badgesPanel.visible = false;
-
-
-		// *** create Leaderboard panel *** 
+	},
+	createPanelLeaderboard: function(leaderboard) {		
 		panel = leaderBoardPanel.create(400,225,"panel");
 		panel.anchor.setTo(0.5,0.5);
 
@@ -212,9 +217,9 @@ menu.prototype = {
 		leaderBoardPanel.add(title);
 
 		var txt_leaderboard = "";
-		for (var i=0 ; i < data_leaderboard.length ; i++)
+		for (var i=0 ; i < leaderboard.length ; i++)
 		{
-			txt_leaderboard += data_leaderboard[i]["name"] + " - " + data_leaderboard[i]["score"] + "\n";
+			txt_leaderboard += leaderboard[i]["name"] + " - " + leaderboard[i]["score"] + "\n";
 		}
 
 		txt_info = new Phaser.Text(this.game, 400, 120, txt_leaderboard, {font: '15pt Arial', wordWrap: true, wordWrapWidth: '500'});
@@ -297,6 +302,14 @@ menu.prototype = {
 		}
 	},
 	startGame: function(){
-		this.game.state.start("Game", true, false);
+
+		var menu = this;
+		session.startGameplay()
+		    .done(function(gp){ 
+		    	gameplay = gp;
+		    	menu.game.state.start("Game", true, false, gameplay, session);
+		    })
+		    .fail(function(msg){ console.log(msg);})
+		
 	}
 }

@@ -59,13 +59,28 @@ window.engage = (function ($) {
         return $.getJSON(url);
     };  
 
+    Session.prototype.getLeaderboard = function (limit) {
+        var url = baseURL + '/learninganalytics/leaderboard/'+limit+'/seriousgame/' + this.idSG + '/version/' + this.version;
+        return $.getJSON(url);
+    };  
+
     Session.prototype.getGameDesc = function () {
-    	var url = baseURL + '/seriousgame/' + this.idSG + "/version/" + this.version;
-    	return $.getJSON(url);
+        var url = baseURL + '/seriousgame/info/' + this.idSG + "/version/" + this.version;
+        return $.getJSON(url);
+    };
+
+    Session.prototype.getGame = function () {
+        var url = baseURL + '/seriousgame/' + this.idSG + "/version/" + this.version;
+        return $.getJSON(url);
     };
 
     Session.prototype.getBadgesWon = function () {
         var url = baseURL + '/badges/seriousgame/' + this.idSG + '/version/' + this.version + '/player/' + this.idPlayer;
+        return $.getJSON(url);
+    };
+
+    Session.prototype.getBadges = function () {
+        var url = baseURL + '/badges/all/seriousgame/' + this.idSG + '/version/' + this.version + '/player/' + this.idPlayer;
         return $.getJSON(url);
     };
 
@@ -109,14 +124,14 @@ window.engage = (function ($) {
 
     GamePlay.prototype.assess = function (action, value) {
         var url = baseURL + '/gameplay/' + this.idGameplay + '/assessAndScore';
-        var data = {action: action, value: value};
+        var data = {action: action, values: value};
         return $.ajax({url: url, method: "PUT", contentType:"application/json;", data: JSON.stringify(data) });
     };
 
     GamePlay.prototype.endGameplay = function (win) {
         var end = win ? 'win' : 'lose';
         var url = baseURL + '/gameplay/' + this.idGameplay + '/end/' + end;        
-        return $.ajax({url: url, method: "POST", contentType:"application/json;"});
+        return $.ajax({url: url, method: "POST"});
     };
 
     GamePlay.prototype.getFeedback = function () {

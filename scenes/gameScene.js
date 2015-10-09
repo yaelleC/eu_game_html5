@@ -25,9 +25,18 @@ var eumouse = function(game){
     var gameOverPanel;
 
     var isGameOver;
+
+    var gameplay;
+    var session;
+
+    speedSlow = 1;
 };
  
 eumouse.prototype = {
+    init: function(gameplayReceived, sessionReceived) {
+        gameplay = gameplayReceived;
+        session = sessionReceived;
+    },
   	create: function() {
         isGameOver = false;
 
@@ -114,15 +123,24 @@ eumouse.prototype = {
         livesScore5 = scores.create(626, 10, 'life');
         livesScore5.anchor.setTo(1,0);
         livesScore5.scale.setTo(0.7);
+
+        var eugame = this;
+        // *** update scores ***
+        gameplay.getScores()
+        .done(function(scores){
+            console.log(scores);
+            eugame.updateScores(scores);
+        });
 	},
     update: function() {
-        // *** move camera automatically ***
+        
         if (!isGameOver)
         {
-            this.game.camera.x += 2;
+            // *** move camera automatically ***
+            this.game.camera.x += 2 * speedSlow;
             this.game.world.setBounds(0, 0, this.game.world.width + 2, this.game.world.height);
-            player.body.velocity.x = 120;
-            scores.position.x += 2;
+            player.body.velocity.x = 120 * speedSlow;
+            scores.position.x += 2 * speedSlow;
             tilesprite.tilePosition.set(-this.game.camera.x,-this.game.camera.y) ;
 
             // every 800px, resize the ground + create new countries
@@ -166,12 +184,33 @@ eumouse.prototype = {
             else if (player.body.position.y > 320) {
                 player.animations.play('run');
             }
-
-            // *** update scores ***
-            this.updateScores();
         }
     },
-    updateScores: function() {
+    speedGame: function() {
+        speedSlow = 1.5;
+    },
+    slowGame: function() {
+        speedSlow = 0.5;
+    },
+    updateScores: function(scores) {
+
+        for (var s = 0 ; s < scores.length ; s++)
+        {
+            var scoreName = scores[s]["name"];
+            var scoreValue = scores[s]["value"];
+
+            switch(scoreName) {
+                case "eu_score":
+                    euScore = scoreValue;
+                    break;
+                case "eu_countries":
+                    score = scoreValue;
+                    break;
+                case "lives":
+                    lives = scoreValue;
+                    break;
+            }
+        }
         euScoreText.text = euScore + "";
         scoreText.text = score + "";
 
@@ -182,7 +221,6 @@ eumouse.prototype = {
                 livesScore3.visible = true;
                 livesScore4.visible = true;
                 livesScore5.visible = true;
-                this.gameOver(true, "you won! :)");
                 break;
             case 4:
                 livesScore1.visible = true;
@@ -221,6 +259,30 @@ eumouse.prototype = {
                 break;
         }
     },
+    updateFeedback: function(feedback) {
+        for (var i = 0 ; i < feedback.length ; i++)
+        {
+            if (feedback[i]["type"] == "ADAPTATION")
+            {
+                if (feedback[i]["name"] == "speedGame")
+                {
+                    this.speedGame();
+                }
+                else if (feedback[i]["name"] == "slowGame")
+                {
+                    this.slowGame();
+                }
+                this.displayFeedback(feedback[i]["message"], feedback[i]["type"]);
+            }
+            else if (feedback[i]["final"])
+            {
+                this.gameOver(feedback[i]["final"], feedback[i]["message"])
+            }
+            else {
+                this.displayFeedback(feedback[i]["message"], feedback[i]["type"]);
+            }
+        }
+    },
     displayFeedback: function(feedback, type) {
         if (type.toUpperCase() == "POSITIVE")
         {
@@ -243,6 +305,8 @@ eumouse.prototype = {
         // set boolean to stop updates
         isGameOver = true;
         player.body.velocity.x = 0;
+
+        gameplay.endGameplay(win);
 
         console.log(win);
 
@@ -274,32 +338,18 @@ eumouse.prototype = {
     },
     collectCountry: function (player, flag) {
 
+        var values = {"country": flag.key};
+
+        var eugame = this;
+
+        gameplay.assess("newCountrySelected", values)
+        .done(function(response){
+            console.log(response);
+            eugame.updateFeedback(response["feedback"]);
+            eugame.updateScores(response["scores"]);
+        });
         // Removes the country from the screen
-        flag.kill();
-
-        //  Add and update the score
-        score ++;
-        euScore ++;
-        lives ++;
-
-        // log feedback
-        var randomFeedback = Math.random() * 3;
-
-        switch(true) {
-            case (randomFeedback < 1):
-                this.displayFeedback("random feedback 1", "POSITIVE");
-                break;
-            case (randomFeedback < 2):
-                this.displayFeedback("random feedback 2", "NEGATIVE");
-                break;
-            case (randomFeedback < 3):
-                this.displayFeedback("random feedback 3", "ADAPTATION");
-                break;
-            default:
-                this.displayFeedback("random feedback 4", "OTHER");
-                break;
-
-        }
+        flag.kill();        
     },
     checkOverlap: function (player, flag) {
         return (this.game.physics.arcade.distanceBetween(player, flag) < 110);
@@ -318,6 +368,6 @@ eumouse.prototype = {
         this.game.physics.arcade.enable(country);
     },
     goToMenu: function(){
-        this.game.state.start("Menu");
+        this.game.state.start("Menu", true, false, session);
     }
 }

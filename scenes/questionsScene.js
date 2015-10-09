@@ -9,17 +9,18 @@ var questions = function(game){
 	username = "you";
 
 	answers = [];
+
+	var session;
 };
   
 questions.prototype = {
-	init: function(paramsReceived, usernameReceived){
-
+	init: function(paramsReceived, usernameReceived, sessionReceived){
 		questions = paramsReceived;
 		username = usernameReceived;
+		session = sessionReceived;
 	},
   	create: function(){
 		$("#form_inputs").empty();
-
 
     	this.game.add.sprite(0, 0, 'menu_bg');
     	var gameTitle = this.game.add.sprite(400,65,"gametitle");
@@ -48,9 +49,9 @@ questions.prototype = {
 			answers[i]["value"] = $("#question"+i).val();
 		}
 
-		console.log(answers);
+		session.params = answers;
 
 		$("#form_inputs").empty();
-		this.game.state.start("Menu");
+		this.game.state.start("Menu", true, false, session);
 	}
 }
