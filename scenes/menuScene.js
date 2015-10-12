@@ -22,27 +22,6 @@ var menu = function(game){
 	var effort; 
 	var performance;
 
-	txt_about = "This game was created for X and Y by Z. It was blah blah blah...";
-	title_game = "My game";
-
-	data_leaderboard = [
-		{"name": "yaelle", "score": "20"},
-		{"name": "yaelle", "score": "10"},
-		{"name": "yaelle", "score": "8"},
-		{"name": "yaelle", "score": "4"},
-	];
-
-	data_badges = [
-		{"name": "gold_medal", "earned": false},
-		{"name": "silver_medal", "earned": false},
-		{"name": "bronze_medal", "earned": true},
-		{"name": "expert_time", "earned": false},
-		{"name": "master_time", "earned": true},
-		{"name": "novice_time", "earned": true},
-		{"name": "effort", "earned": true},
-		{"name": "performance", "earned": false},
-	];
-
 	session = {};
 };
   
@@ -66,10 +45,30 @@ menu.prototype = {
 		badgesPanel= this.game.add.group();
 		leaderBoardPanel= this.game.add.group();
 
-		this.createPanelAbout(title_game, txt_about);
-		this.createPanelBadges(data_badges);
-		this.createPanelLeaderboard(data_leaderboard);
-	
+		// create panel about based on EngAGe data
+		var menu = this;
+		session.getGameDesc()
+		.done(
+		    function(gameDesc){
+		        menu.createPanelAbout(gameDesc["name"], gameDesc["description"]);
+		    }
+		);
+
+		// badges panel
+		session.getBadges()
+		.done(
+		    function(badges){
+		        menu.createPanelBadges(badges);
+		    }
+		);
+
+		// leaderboard panel
+		session.getLeaderboard(10)
+		.done(
+			function(leaderboard){
+		        menu.createPanelLeaderboard(leaderboard["eu_score"]);
+		    }
+		);	
 	},
 	updateBadges: function(badges) {
 		for (var i = 0 ; i < badges.length ; i++)
@@ -273,6 +272,13 @@ menu.prototype = {
 	},
 	startGame: function(){
 
-		this.game.state.start("Game", true, false, session);
+		var menu = this;
+		session.startGameplay()
+	    .done(function(gp){ 
+	    	var gameplay = gp;
+	    	menu.game.state.start("Game", true, false, session, gameplay);
+	    })
+	    .fail(function(msg){ console.log(msg);})
+
 	}
 }

@@ -16,6 +16,8 @@ questions.prototype = {
 	init: function(usernameReceived, sessionReceived){
 		username = usernameReceived;
 		session = sessionReceived;
+		questions = (session["params"])? session["params"] : [] ;
+
 	},
   	create: function(){
 		$("#form_inputs").empty();
@@ -40,7 +42,16 @@ questions.prototype = {
 
 	},
 	goToMenu: function(){
+		answers = questions;
+		for (i=0; i<questions.length; i++)
+		{
+			answers[i]["value"] = $("#question"+i).val();
+		}
+
+		session.params = answers;
+
 		$("#form_inputs").empty();
 		this.game.state.start("Menu", true, false, session);
-	}
+
+		}
 }

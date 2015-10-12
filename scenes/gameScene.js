@@ -27,6 +27,7 @@ var eumouse = function(game){
     var isGameOver;
 
     session = {};
+    var gameplay;
 
     speedSlow = 1;
 
@@ -34,7 +35,8 @@ var eumouse = function(game){
 };
  
 eumouse.prototype = {
-    init: function(sessionReceived) {
+    init: function(sessionReceived, gameplayReceived) {
+        gameplay = gameplayReceived;
         session = sessionReceived;
     },
   	create: function() {
@@ -89,10 +91,14 @@ eumouse.prototype = {
 
 
         // *** The scores ***
-            // initialise scores
-        euScore = 0;   
-        score = 0;   
-        lives = 1;
+        // initialise scores 
+        var eugame = this;
+        gameplay.getScores()
+            .done(function(scores){
+                console.log(scores);
+                eugame.updateScores(scores);
+            });
+
             // create group so it's easier to move
         scores = this.game.add.group();
             // the eu_countries score
@@ -251,6 +257,32 @@ eumouse.prototype = {
                 break;
         }
     },
+    updateFeedback: function(feedback) {
+        for (var i = 0 ; i < feedback.length ; i++)
+        {
+            if (feedback[i]["type"] == "ADAPTATION")
+            {
+                if (feedback[i]["name"] == "speedGame")
+                {
+                    this.speedGame();
+                }
+                else if (feedback[i]["name"] == "slowGame")
+                {
+                    this.slowGame();
+                }
+                this.displayFeedback(feedback[i]["message"],  
+                                               feedback[i]["type"]);
+            }
+            else if (feedback[i]["final"])
+            {
+                this.gameOver(feedback[i]["final"], feedback[i]["message"])
+            }
+            else {
+                this.displayFeedback(feedback[i]["message"], 
+                                             feedback[i]["type"]);
+            }
+        }
+    },
     displayFeedback: function(feedback, type) {
         if (type.toUpperCase() == "POSITIVE")
         {
@@ -270,6 +302,10 @@ eumouse.prototype = {
         }
     },
     gameOver: function(win, textFeedback) {
+
+        // tell EngAGe the game ended
+        gameplay.endGameplay(win);
+
         // set boolean to stop updates
         isGameOver = true;
         player.body.velocity.x = 0;
@@ -302,9 +338,20 @@ eumouse.prototype = {
         menuButton.anchor.setTo(0.5,0.5);
         gameOverPanel.add(menuButton);
     },
-    collectCountry: function (player, flag) {
-        // save country found   
+    collectCountry: function (player, flag) {        
         countriesFound.push(flag.key);
+
+        // assess action with EngAGe
+        var values = {"country": flag.key};
+        var action = ($.inArray(flag.key, countriesFound))? "countryReSelected" : "newCountrySelected";
+        var eugame = this;
+
+        gameplay.assess(action, values)
+        .done(function(response){
+            eugame.updateScores(response["scores"]);             
+            eugame.updateFeedback(response["feedback"]);
+
+        });
 
         // Removes the country from the screen
         flag.kill();        

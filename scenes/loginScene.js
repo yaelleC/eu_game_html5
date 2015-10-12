@@ -6,6 +6,9 @@ var login = function(game){
     password_tag = "Password"; 
     username_inputText = "";
     password_inputText = "";
+    
+    // Set the unique ID for your serious game  
+    idSG = 161;
 
 	session = {};
 };
@@ -36,11 +39,33 @@ login.prototype = {
 		username_inputText = $("#username").val();
 		password_inputText = $("#password").val();
 
-		this.goToQuestionsScene(username_inputText);	
+		var login = this;
+
+		engage.loginStudent(idSG, username_inputText, password_inputText)
+		.done(function(s){ 
+			session=s;
+			if (session["params"].length == 0) {
+				login.goToMenuScene();
+			}
+			else {
+				login.goToQuestionsScene(username_inputText);	
+			}
+		})
+		.fail(function(msg){
+			login.errorMessage(msg);
+		});
+
 	},
 	loginGuestToGame: function(){
-
-		this.goToQuestionsScene("Guest");
+		var login = this;
+		engage.guestLogin(idSG)
+		.done(function(s){
+			session=s;
+			login.goToQuestionsScene("Guest");				
+		})
+		.fail(function(msg){
+	 		login.errorMessage(msg);
+		});
 	},
 	errorMessage: function(msg){
 		var error_msg = this.game.add.text(400, 150, msg, { fontSize: '20px', fill: 'DarkRed' });
