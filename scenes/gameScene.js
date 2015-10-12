@@ -251,30 +251,6 @@ eumouse.prototype = {
                 break;
         }
     },
-    updateFeedback: function(feedback) {
-        for (var i = 0 ; i < feedback.length ; i++)
-        {
-            if (feedback[i]["type"] == "ADAPTATION")
-            {
-                if (feedback[i]["name"] == "speedGame")
-                {
-                    this.speedGame();
-                }
-                else if (feedback[i]["name"] == "slowGame")
-                {
-                    this.slowGame();
-                }
-                this.displayFeedback(feedback[i]["message"], feedback[i]["type"]);
-            }
-            else if (feedback[i]["final"])
-            {
-                this.gameOver(feedback[i]["final"], feedback[i]["message"])
-            }
-            else {
-                this.displayFeedback(feedback[i]["message"], feedback[i]["type"]);
-            }
-        }
-    },
     displayFeedback: function(feedback, type) {
         if (type.toUpperCase() == "POSITIVE")
         {
@@ -327,8 +303,7 @@ eumouse.prototype = {
         gameOverPanel.add(menuButton);
     },
     collectCountry: function (player, flag) {
-
-        
+        // save country found   
         countriesFound.push(flag.key);
 
         // Removes the country from the screen
