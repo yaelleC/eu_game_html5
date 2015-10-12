@@ -9,7 +9,7 @@ var login = function(game){
 
     // Set the unique ID for your serious game  
 	idSG = 160;
-	var session;
+	session = {};
 };
   
 login.prototype = {
@@ -23,10 +23,10 @@ login.prototype = {
 		username_tag = this.game.add.text(200, 180, 'Username', { fontSize: '20px', fill: '#000' });
 		password_tag = this.game.add.text(200, 230, 'Password', { fontSize: '20px', fill: '#000' });
 
-		$("#form_inputs").append('<input type="text" class="form-control" id="username" value="test">');
+		$("#form_inputs").append('<input type="text" class="form-control" id="username" value="">');
 		$("#username").css({"position": "absolute", "top": "200px", "left": "375px", "width": "300px"});
 
-		$("#form_inputs").append('<input type="password" class="form-control" id="password" value="test1234">');
+		$("#form_inputs").append('<input type="password" class="form-control" id="password" value="">');
 		$("#password").css({"position": "absolute", "top": "250px", "left": "375px", "width": "300px"});
 
     	var loginButton = this.game.add.button(400,330,"btn_login",this.loginToGame,this);
@@ -37,44 +37,20 @@ login.prototype = {
 	loginToGame: function(){
 		username_inputText = $("#username").val();
 		password_inputText = $("#password").val();
-		 	console.log("u: " + username_inputText);
-		 	console.log("p: " + password_inputText);
-		
-		var login = this;
 
-		engage.loginStudent(idSG, username_inputText, password_inputText)
-	    .done(function(s){ 
-	    	session=s;
-			if (session["params"].length == 0) {
-				login.goToMenuScene();
-			}
-			else {
-				login.goToQuestionsScene(session["params"], username_inputText);	
-			}
-	    })
-	    .fail(function(msg){
-	    	login.errorMessage(msg);
-	    });
+		this.goToQuestionsScene(username_inputText);	
 	},
 	loginGuestToGame: function(){
 
-		var login = this;
-		engage.guestLogin(idSG)
-	    .done(function(s){ 
-	    	session=s;
-	    	login.goToQuestionsScene(session["params"], "Guest");				
-	    })
-	    .fail(function(msg){
-	    	login.errorMessage(msg);
-	    });
+		this.goToQuestionsScene("Guest");
 	},
 	errorMessage: function(msg){
 		var error_msg = this.game.add.text(400, 150, msg, { fontSize: '20px', fill: 'DarkRed' });
 		error_msg.anchor.setTo(0.5,0.5);
 	},
-	goToQuestionsScene: function(paramsReceived, username){
+	goToQuestionsScene: function(username){
 		$("#form_inputs").empty();
-		this.game.state.start("Questions", true, false, paramsReceived, username, session );
+		this.game.state.start("Questions", true, false, username, session );
 	},
 	goToMenuScene: function(){
 		$("#form_inputs").empty();

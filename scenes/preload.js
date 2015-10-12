@@ -9,7 +9,7 @@ preload.prototype = {
         this.load.setPreloadSprite(loadingBar);
 
 		// GUI
-        this.game.load.image("menu_bg","sprites/bgMenu.png"); 
+        this.game.load.image("menu_bg","sprites/bgMenuFull.png"); 
         this.game.load.image("gametitle","sprites/gameTitle.png"); 
 
         this.game.load.image("btn_play", "sprites/btn_play.png");

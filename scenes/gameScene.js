@@ -26,8 +26,7 @@ var eumouse = function(game){
 
     var isGameOver;
 
-    var gameplay;
-    var session;
+    session = {};
 
     speedSlow = 1;
 
@@ -35,8 +34,7 @@ var eumouse = function(game){
 };
  
 eumouse.prototype = {
-    init: function(gameplayReceived, sessionReceived) {
-        gameplay = gameplayReceived;
+    init: function(sessionReceived) {
         session = sessionReceived;
     },
   	create: function() {
@@ -125,14 +123,6 @@ eumouse.prototype = {
         livesScore5 = scores.create(626, 10, 'life');
         livesScore5.anchor.setTo(1,0);
         livesScore5.scale.setTo(0.7);
-
-        var eugame = this;
-        // *** update scores ***
-        gameplay.getScores()
-        .done(function(scores){
-            console.log(scores);
-            eugame.updateScores(scores);
-        });
 	},
     update: function() {
         
@@ -308,8 +298,6 @@ eumouse.prototype = {
         isGameOver = true;
         player.body.velocity.x = 0;
 
-        gameplay.endGameplay(win);
-
         console.log(win);
 
         if (!win){
@@ -340,19 +328,9 @@ eumouse.prototype = {
     },
     collectCountry: function (player, flag) {
 
-        var values = {"country": flag.key};
+        
+        countriesFound.push(flag.key);
 
-        var action = ($.inArray(flag.key, countriesFound))? "countryReSelected" : "newCountrySelected";
-        countriesFound.add(flag.key);
-
-        var eugame = this;
-
-        gameplay.assess(action, values)
-        .done(function(response){
-            console.log(response);
-            eugame.updateFeedback(response["feedback"]);
-            eugame.updateScores(response["scores"]);
-        });
         // Removes the country from the screen
         flag.kill();        
     },

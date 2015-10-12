@@ -2,20 +2,18 @@ var questions = function(game){
 	console.log("%cStarting question scene", "color:black; background:green");
 
 	questions = [
-		{"question": "oui?", "name": "oui", "type": "String"}, 
-		{"question": "how old are you?", "name": "age", "type": "Int"}, 
+		{"question": "default1?", "name": "default1", "type": "String"}, 
+		{"question": "default2?", "name": "default2", "type": "String"}
 	];
 
 	username = "you";
 
 	answers = [];
-
-	var session;
+	session = {};
 };
   
 questions.prototype = {
-	init: function(paramsReceived, usernameReceived, sessionReceived){
-		questions = paramsReceived;
+	init: function(usernameReceived, sessionReceived){
 		username = usernameReceived;
 		session = sessionReceived;
 	},
@@ -42,15 +40,6 @@ questions.prototype = {
 
 	},
 	goToMenu: function(){
-
-		answers = questions;
-		for (i=0; i<questions.length; i++)
-		{
-			answers[i]["value"] = $("#question"+i).val();
-		}
-
-		session.params = answers;
-
 		$("#form_inputs").empty();
 		this.game.state.start("Menu", true, false, session);
 	}

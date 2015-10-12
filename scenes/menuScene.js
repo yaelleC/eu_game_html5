@@ -23,6 +23,7 @@ var menu = function(game){
 	var performance;
 
 	txt_about = "This game was created for X and Y by Z. It was blah blah blah...";
+	title_game = "My game";
 
 	data_leaderboard = [
 		{"name": "yaelle", "score": "20"},
@@ -32,14 +33,7 @@ var menu = function(game){
 	];
 
 	data_badges = [
-		{
-	        "message": "You played 10+ times",
-	        "id": 466,
-	        "name": "effort",
-	        "earned": false,
-	        "goalNum": 10,
-	        "playerNum": 8
-	    },
+		{"name": "gold_medal", "earned": false},
 		{"name": "silver_medal", "earned": false},
 		{"name": "bronze_medal", "earned": true},
 		{"name": "expert_time", "earned": false},
@@ -49,15 +43,12 @@ var menu = function(game){
 		{"name": "performance", "earned": false},
 	];
 
-	player_params = [];
-	var session;
-	var gameplay;
+	session = {};
 };
   
 menu.prototype = {
 	init: function(sessionReceived) {
 		session = sessionReceived;
-		player_params = sessionReceived.params;
 	},
 	create: function(){
   		this.game.add.sprite(0, 0, 'menu_bg');
@@ -75,31 +66,10 @@ menu.prototype = {
 		badgesPanel= this.game.add.group();
 		leaderBoardPanel= this.game.add.group();
 
-		// this.createPanelAbout(txt_about);
-		// this.createPanelBadges(data_badges);
-		// this.createPanelLeaderboard(data_leaderboard);
-
-		var menu = this;
-		session.getGameDesc()
-		.done(
-		    function(gameDesc){
-		        menu.createPanelAbout(gameDesc["name"], gameDesc["description"]);
-		    }
-		);
-
-		session.getBadges()
-		.done(
-		    function(badges){
-		        menu.createPanelBadges(badges);
-		    }
-		);
-
-		session.getLeaderboard(10)
-		.done(
-			function(leaderboard){
-		        menu.createPanelLeaderboard(leaderboard["eu_score"]);
-		    }
-	    );
+		this.createPanelAbout(title_game, txt_about);
+		this.createPanelBadges(data_badges);
+		this.createPanelLeaderboard(data_leaderboard);
+	
 	},
 	updateBadges: function(badges) {
 		for (var i = 0 ; i < badges.length ; i++)
@@ -303,13 +273,6 @@ menu.prototype = {
 	},
 	startGame: function(){
 
-		var menu = this;
-		session.startGameplay()
-		    .done(function(gp){ 
-		    	gameplay = gp;
-		    	menu.game.state.start("Game", true, false, gameplay, session);
-		    })
-		    .fail(function(msg){ console.log(msg);})
-		
+		this.game.state.start("Game", true, false, session);
 	}
 }
