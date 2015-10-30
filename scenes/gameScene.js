@@ -254,33 +254,6 @@ eumouse.prototype = {
                 break;
         }
     },
-    updateFeedback: function(feedback) {
-        for (var i = 0 ; i < feedback.length ; i++)
-        {
-            if (feedback[i]["type"] == "ADAPTATION")
-            {
-                if (feedback[i]["name"] == "speedGame")
-                {
-                    this.speedGame();
-                }
-                else if (feedback[i]["name"] == "slowGame")
-                {
-                    this.slowGame();
-                }
-                this.displayFeedback(feedback[i]["message"],  
-                                               feedback[i]["type"]);
-            }
-            else if (feedback[i]["final"])
-            {
-                var win = (feedback[i]["final"] == "win");
-                this.gameOver(win, feedback[i]["message"]);
-            }
-            else {
-                this.displayFeedback(feedback[i]["message"], 
-                                             feedback[i]["type"]);
-            }
-        }
-    },
     displayFeedback: function(feedback, type) {
         var color = "black";
         if (type.toUpperCase() == "POSITIVE")
