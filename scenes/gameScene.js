@@ -142,8 +142,11 @@ eumouse.prototype = {
                 ground.scale.setTo(2+numBg, 2);
 
                 // add countries            
+                if (countryIndex>=listCountries.length) { countryIndex = 0; }
                 this.createCountryItem(150 +800*numBg, listCountries[countryIndex++]["name"]);  
-                this.createCountryItem(400 +800*numBg, listCountries[countryIndex++]["name"]);  
+                if (countryIndex>=listCountries.length) { countryIndex = 0; }
+                this.createCountryItem(400 +800*numBg, listCountries[countryIndex++]["name"]); 
+                if (countryIndex>=listCountries.length) { countryIndex = 0; } 
                 this.createCountryItem(700 +800*numBg, listCountries[countryIndex++]["name"]);  
 
                 // update the number of 800px background the player ran through
