@@ -255,22 +255,25 @@ eumouse.prototype = {
         }
     },
     displayFeedback: function(feedback, type) {
+        var color = "black";
         if (type.toUpperCase() == "POSITIVE")
         {
-            $("#feedback").append('<li style="color: green;">' + feedback + '</li>');
+            color = "green";
         }
         else if (type.toUpperCase() == "NEGATIVE")
         {
-            $("#feedback").append('<li style="color: red;">' + feedback + '</li>');
+            color = "red";
         }
         else if (type.toUpperCase() == "ADAPTATION")
         {
-            $("#feedback").append('<li style="color: blue;">' + feedback + '</li>');
+            color = "blue";
         }
-        else
-        {
-            $("#feedback").append('<li style="color: black;">' + feedback + '</li>');
-        }
+
+        // get time
+        var dt = new Date();
+        var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+
+        $("#feedback").prepend('<li style="color: '+color+';">' + time + ' - ' + feedback + '</li>');
     },
     gameOver: function(win, textFeedback) {
         // set boolean to stop updates
