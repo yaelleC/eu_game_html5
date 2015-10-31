@@ -29,7 +29,7 @@ var eumouse = function(game){
     session = {};
     var gameplay;
 
-    speedSlow = 1;
+    speedSlow = 1.0;
 
     countriesFound = [];
 };
@@ -41,6 +41,7 @@ eumouse.prototype = {
     },
   	create: function() {
         isGameOver = false;
+        speedSlow = 1;
 
         // *** feedback panel ***
         $("#feedback").empty();
@@ -74,6 +75,8 @@ eumouse.prototype = {
         player.body.collideWorldBounds = true;
         player.body.gravity.y = 300;
 
+        player.body.velocity.x = 120 * speedSlow;
+
             //  Player's animations
         player.animations.add('stand', [4], 10, true);
         player.animations.add('run', [4, 5, 6, 7], 10, true);
@@ -95,7 +98,6 @@ eumouse.prototype = {
         var eugame = this;
         gameplay.getScores()
             .done(function(scores){
-                console.log(scores);
                 eugame.updateScores(scores);
             });
 
@@ -135,10 +137,11 @@ eumouse.prototype = {
         if (!isGameOver)
         {
             // *** move camera automatically ***
-            this.game.camera.x += 2 * speedSlow;
+            var newPos = 2 * speedSlow;
+            this.game.camera.x += newPos;
+            scores.position.x += newPos;
+
             this.game.world.setBounds(0, 0, this.game.world.width + 2, this.game.world.height);
-            player.body.velocity.x = 120 * speedSlow;
-            scores.position.x += 2 * speedSlow;
             tilesprite.tilePosition.set(-this.game.camera.x,-this.game.camera.y) ;
 
             // every 800px, resize the ground + create new countries
@@ -148,8 +151,11 @@ eumouse.prototype = {
                 ground.scale.setTo(2+numBg, 2);
 
                 // add countries            
+                if (countryIndex>=listCountries.length) { countryIndex = 0; }
                 this.createCountryItem(150 +800*numBg, listCountries[countryIndex++]["name"]);  
-                this.createCountryItem(400 +800*numBg, listCountries[countryIndex++]["name"]);  
+                if (countryIndex>=listCountries.length) { countryIndex = 0; }
+                this.createCountryItem(400 +800*numBg, listCountries[countryIndex++]["name"]); 
+                if (countryIndex>=listCountries.length) { countryIndex = 0; } 
                 this.createCountryItem(700 +800*numBg, listCountries[countryIndex++]["name"]);  
 
                 // update the number of 800px background the player ran through
@@ -185,10 +191,12 @@ eumouse.prototype = {
         }
     },
     speedGame: function() {
-        speedSlow = 1.5;
+        speedSlow += speedSlow/4;
+        player.body.velocity.x = 120 * speedSlow;
     },
     slowGame: function() {
         speedSlow = 0.5;
+        player.body.velocity.x = 60;
     },
     updateScores: function(scores) {
 
@@ -199,10 +207,10 @@ eumouse.prototype = {
 
             switch(scoreName) {
                 case "eu_score":
-                    euScore = scoreValue;
+                    score = scoreValue;
                     break;
                 case "eu_countries":
-                    score = scoreValue;
+                    euScore = scoreValue;
                     break;
                 case "lives":
                     lives = scoreValue;
@@ -275,7 +283,8 @@ eumouse.prototype = {
             }
             else if (feedback[i]["final"])
             {
-                this.gameOver(feedback[i]["final"], feedback[i]["message"])
+                var win = (feedback[i]["final"] == "win");
+                this.gameOver(win, feedback[i]["message"]);
             }
             else {
                 this.displayFeedback(feedback[i]["message"], 
@@ -284,22 +293,25 @@ eumouse.prototype = {
         }
     },
     displayFeedback: function(feedback, type) {
+        var color = "black";
         if (type.toUpperCase() == "POSITIVE")
         {
-            $("#feedback").append('<li style="color: green;">' + feedback + '</li>');
+            color = "green";
         }
         else if (type.toUpperCase() == "NEGATIVE")
         {
-            $("#feedback").append('<li style="color: red;">' + feedback + '</li>');
+            color = "red";
         }
         else if (type.toUpperCase() == "ADAPTATION")
         {
-            $("#feedback").append('<li style="color: blue;">' + feedback + '</li>');
+            color = "blue";
         }
-        else
-        {
-            $("#feedback").append('<li style="color: black;">' + feedback + '</li>');
-        }
+
+        // get time
+        var dt = new Date();
+        var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+
+        $("#feedback").prepend('<li style="color: '+color+';">' + time + ' - ' + feedback + '</li>');
     },
     gameOver: function(win, textFeedback) {
 
@@ -309,8 +321,6 @@ eumouse.prototype = {
         // set boolean to stop updates
         isGameOver = true;
         player.body.velocity.x = 0;
-
-        console.log(win);
 
         if (!win){
             player.animations.play('die');
@@ -338,12 +348,12 @@ eumouse.prototype = {
         menuButton.anchor.setTo(0.5,0.5);
         gameOverPanel.add(menuButton);
     },
-    collectCountry: function (player, flag) {        
-        countriesFound.push(flag.key);
+    collectCountry: function (player, flag) {    
 
         // assess action with EngAGe
         var values = {"country": flag.key};
-        var action = ($.inArray(flag.key, countriesFound))? "countryReSelected" : "newCountrySelected";
+        var action = (countriesFound.indexOf(flag.key) >= 0)? "countrySelectedAgain" : "newCountrySelected";    
+
         var eugame = this;
 
         gameplay.assess(action, values)
@@ -352,6 +362,8 @@ eumouse.prototype = {
             eugame.updateFeedback(response["feedback"]);
 
         });
+
+        countriesFound.push(flag.key);
 
         // Removes the country from the screen
         flag.kill();        

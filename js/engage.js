@@ -131,7 +131,7 @@ window.engage = (function ($) {
     GamePlay.prototype.endGameplay = function (win) {
         var end = win ? 'win' : 'lose';
         var url = baseURL + '/gameplay/' + this.idGameplay + '/end/' + end;        
-        return $.ajax({url: url, method: "POST", contentType:"application/json;"});
+        return $.ajax({url: url, method: "POST"});
     };
 
     GamePlay.prototype.getFeedback = function () {
